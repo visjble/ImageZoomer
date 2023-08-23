@@ -1,0 +1,43 @@
+
+# Image Zoomer
+
+## Overview
+Image Zoomer is a simple GUI application created with `tkinter` that allows users to zoom into an image and pan it around. Additionally, it provides grid overlays on the image at specified intervals.
+
+## Features
+1. **Zooming**: Use the provided slider to zoom in and out of the image.
+2. **Panning**: Click and drag the image to move it within the viewing area.
+3. **Grid Overlays**: Add grid lines at user-defined intervals to better gauge details.
+4. **Cross-Platform**: Works on Windows, Linux, and MacOS.
+
+## Setup and Usage
+
+### Prerequisites
+Ensure you have Python 3 installed along with the required packages:
+
+```
+pip install Pillow
+```
+
+### Running the Program
+
+1. Clone the repository to your local machine:
+```
+git clone <repository-url>
+cd <repository-directory>
+```
+
+2. Run the program:
+```
+python <script-name>.py
+```
+
+3. A file dialog will open. Navigate to your desired image (currently supporting PNG format) and open it.
+
+4. Use the slider at the bottom of the application window to zoom in and out. Click and drag the image to pan.
+
+5. Adjust the grid interval (in pixels) by entering a value in the "Grid Interval:" box and pressing Enter.
+
+## License
+This project is licensed under custom terms. All rights are reserved for the year 2023.
+
