@@ -1,43 +1,102 @@
-
 # Image Zoomer
 
 ## Overview
-Image Zoomer is a simple GUI application created with `tkinter` that allows users to zoom into an image and pan it around. Additionally, it provides grid overlays on the image at specified intervals.
+Image Zoomer is a comprehensive GUI application created with `tkinter` that allows users to zoom, pan, and manipulate images with precision. It features grid overlays, image transformations, and extensive keyboard controls for efficient workflow.
 
 ## Features
-1. **Zooming**: Use the provided slider to zoom in and out of the image.
-2. **Panning**: Click and drag the image to move it within the viewing area.
-3. **Grid Overlays**: Add grid lines at user-defined intervals to better gauge details.
-4. **Cross-Platform**: Works on Windows, Linux, and MacOS.
+
+### Core Functionality
+1. **Zooming**: Use the slider, mouse wheel, or arrow keys for precise zoom control
+2. **Panning**: Click and drag the image to move it within the viewing area
+3. **Grid Overlays**: Add customizable grid lines with toggle visibility (F7)
+4. **Cross-Platform**: Works on Windows, Linux, and MacOS
+
+### Image Manipulation
+5. **Horizontal/Vertical Flipping**: F1/F2 keys for instant mirroring
+6. **Rotation**: F3/F4 keys for 90° clockwise/counterclockwise rotation
+7. **Reset Function**: F5 to restore original image state
+8. **Fit to Window**: F6 to automatically size image to fit canvas
+
+### Advanced Controls
+9. **Keyboard Zoom**: Left/Right arrow keys for fine zoom increments
+10. **Grid Toggle**: F7 to show/hide grid without changing interval settings
+11. **Zoom Percentage Display**: Real-time zoom level indicator
+12. **Copy Zoom Level**: Button to copy current zoom to clipboard
+13. **Comprehensive Help System**: Built-in shortcut reference (? button)
+
+### Quality of Life
+14. **Multi-format Support**: PNG, JPEG, GIF, BMP, and other common image formats
+15. **Directory Memory**: Remembers last used folder for file operations
+16. **Custom Image Sizing**: Manual dimension input with validation
+17. **Predefined Size Presets**: Quick access to common dimensions
+18. **Quick Exit**: Escape key to close application
 
 ## Setup and Usage
 
 ### Prerequisites
 Ensure you have Python 3 installed along with the required packages:
-
-```
+```bash
 pip install Pillow
 ```
 
 ### Running the Program
-
 1. Clone the repository to your local machine:
-```
+```bash
 git clone <repository-url>
 cd <repository-directory>
 ```
 
 2. Run the program:
-```
+```bash
 python <script-name>.py
 ```
 
-3. A file dialog will open. Navigate to your desired image (currently supporting PNG format) and open it.
+3. A file dialog will open. Navigate to your desired image (supports PNG, JPEG, GIF, BMP, and other formats) and open it.
 
-4. Use the slider at the bottom of the application window to zoom in and out. Click and drag the image to pan.
+4. Use the controls and keyboard shortcuts to manipulate your image as needed.
 
-5. Adjust the grid interval (in pixels) by entering a value in the "Grid Interval:" box and pressing Enter.
+## Keyboard Shortcuts
+
+### Navigation & Zoom
+- **Left/Right Arrows**: Fine zoom out/in control
+- **Mouse Wheel**: Standard zoom in/out
+- **F6**: Fit image to window
+
+### Image Transformations  
+- **F1**: Flip horizontal
+- **F2**: Flip vertical
+- **F3**: Rotate 90° clockwise
+- **F4**: Rotate 90° counterclockwise
+- **F5**: Reset to original image
+
+### Display Options
+- **F7**: Toggle grid visibility
+- **Escape**: Close application
+
+### Interface
+- **? Button**: Show complete shortcut reference
+- **Copy Zoom Button**: Copy current zoom level to clipboard
+
+## Controls Reference
+
+### Mouse Controls
+- **Click + Drag**: Pan image around canvas
+- **Scroll Wheel**: Zoom in/out
+
+### Interface Elements
+- **Zoom Slider**: Manual zoom control with percentage display
+- **Image Size Entry**: Custom dimensions (format: WIDTHxHEIGHT)
+- **Grid Interval Entry**: Set grid spacing in pixels
+- **Size Dropdown**: Quick presets (Custom, 7x7 inches, Original Size)
+- **Help Button (?)**: Display all keyboard shortcuts
+- **Copy Zoom Button**: Copy current zoom value to system clipboard
+
+## Technical Notes
+- Grid intervals are measured in pixels and scale with zoom level
+- Image transformations (flip/rotate) are persistent until reset
+- Zoom range: 50% to 300% with fine control increments
+- All transformations maintain image quality using high-quality resampling
+- Directory navigation remembers your last opened folder
 
 ## License
 This project is licensed under custom terms. All rights are reserved for the year 2023.
-
