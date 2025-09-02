@@ -6,7 +6,8 @@ from PIL import ImageTk, Image, ImageDraw
 import os, platform
 from tkinter import ttk
 import math
-
+import json
+import hashlib
 
 class ImageZoomApp:
     def __init__(self, root, image_path):
@@ -83,12 +84,15 @@ class ImageZoomApp:
         self.root.bind("<o>", self.toggle_edit_overlay_mode)  # Combined overlay edit mode
         self.root.bind("<b>", self.toggle_move_base_mode)  # 'b' for base move
         
-        # Keyboard bindings for overlay resizing
-        self.root.bind("<Control-Shift-plus>", self.increase_overlay_size)
-        self.root.bind("<Control-Shift-equal>", self.increase_overlay_size)  # For keyboards where + requires shift
-        self.root.bind("<Control-Shift-minus>", self.decrease_overlay_size)
-        self.root.bind("<Control-Shift-underscore>", self.decrease_overlay_size)  # Alternative binding for -
-        self.root.bind("<Control-Shift-Key-minus>", self.decrease_overlay_size)  # Another alternative
+        # Keyboard bindings for save
+        self.root.bind("<Control-s>", lambda e: self.save_settings())
+        
+        # Keyboard bindings for main image zoom
+        self.root.bind("<Control-Shift-plus>", self.zoom_in_keyboard_ctrl)
+        self.root.bind("<Control-Shift-equal>", self.zoom_in_keyboard_ctrl)  # For keyboards where + requires shift
+        self.root.bind("<Control-Shift-minus>", self.zoom_out_keyboard_ctrl)
+        self.root.bind("<Control-Shift-underscore>", self.zoom_out_keyboard_ctrl)  # Alternative binding for -
+        self.root.bind("<Control-Shift-Key-minus>", self.zoom_out_keyboard_ctrl)  # Another alternative
         
         # Keyboard bindings for grid movement (when in grid move mode)
         self.root.bind("<Up>", self.move_grid_up)
@@ -111,7 +115,7 @@ class ImageZoomApp:
         zoom_frame.pack(side=tk.LEFT, padx=10)
         
         tk.Label(zoom_frame, text="Zoom:", font=("Arial", 8)).pack(side=tk.TOP)
-        self.slider = tk.Scale(zoom_frame, from_=0.5, to_=3, orient=tk.HORIZONTAL, resolution=0.006, command=self.update_zoom, length=200)
+        self.slider = tk.Scale(zoom_frame, from_=0.25, to_=3, orient=tk.HORIZONTAL, resolution=0.006, command=self.update_zoom, length=200)
         self.slider.set(1)  # Set default value to 1 (no zoom)
         self.slider.pack(side=tk.TOP)
         
@@ -119,13 +123,16 @@ class ImageZoomApp:
         self.zoom_percentage_label.pack(side=tk.TOP)
 
         # Grid interval control
+        # Grid interval control
         grid_frame = tk.Frame(self.control_frame)
         grid_frame.pack(side=tk.LEFT, padx=10)
-        
+
         tk.Label(grid_frame, text="Grid Interval:", font=("Arial", 8)).pack(side=tk.TOP)
         self.grid_interval_entry = tk.Entry(grid_frame, textvariable=self.grid_interval_var, width=8)
         self.grid_interval_entry.pack(side=tk.TOP)
         self.grid_interval_entry.bind("<Return>", lambda event: self.update_displayed_image())
+        self.grid_interval_entry.bind("<FocusOut>", lambda event: self.update_displayed_image())
+        self.grid_interval_entry.bind("<KeyRelease>", lambda event: self.update_displayed_image())
 
         # Transparency slider for overlay
         transparency_frame = tk.Frame(self.control_frame)
@@ -178,6 +185,115 @@ class ImageZoomApp:
         self.root.update()
         self.update_zoom(1)
 
+        # img settings recall
+        self.current_image_path = image_path  # Store current image path
+        # Load settings after UI setup
+        self.root.after(100, lambda: self.load_settings(image_path))
+
+    
+    def get_settings_filename(self, image_path):
+        """Generate a settings filename based on the image path"""
+        return image_path + ".settings.json"
+
+    def save_settings(self, image_path=None):
+        """Save current settings to a JSON file"""
+        if not image_path:
+            image_path = getattr(self, 'current_image_path', None)
+            if not image_path:
+                return
+        
+        settings = {
+            'zoom_level': float(self.slider.get()),
+            'grid_offset_x': self.grid_offset_x,
+            'grid_offset_y': self.grid_offset_y,
+            'grid_rotation': self.grid_rotation,
+            'grid_rotation_center_x': self.grid_rotation_center_x,
+            'grid_rotation_center_y': self.grid_rotation_center_y,
+            'grid_interval': self.grid_interval_var.get(),
+            'grid_visible': self.grid_visible,
+            'base_offset_x': self.base_offset_x,
+            'base_offset_y': self.base_offset_y,
+            'image_size': [self.original_image.size[0], self.original_image.size[1]],
+            'size_preset': self.size_combobox.get()
+        }
+        
+        # Save overlay settings if present
+        if self.overlay_image:
+            settings['overlay'] = {
+                'scale': self.overlay_scale,
+                'offset_x': self.overlay_offset_x,
+                'offset_y': self.overlay_offset_y,
+                'transparency': int(self.transparency_slider.get())
+            }
+        
+        try:
+            settings_file = self.get_settings_filename(image_path)
+            with open(settings_file, 'w') as f:
+                json.dump(settings, f, indent=2)
+            print(f"Settings saved to {settings_file}")
+        except Exception as e:
+            print(f"Error saving settings: {e}")
+
+    def load_settings(self, image_path):
+        """Load settings from JSON file if it exists"""
+        settings_file = self.get_settings_filename(image_path)
+        
+        if not os.path.exists(settings_file):
+            return False
+        
+        try:
+            with open(settings_file, 'r') as f:
+                settings = json.load(f)
+            
+            # Restore basic settings
+            if 'zoom_level' in settings:
+                self.slider.set(settings['zoom_level'])
+            
+            if 'grid_offset_x' in settings:
+                self.grid_offset_x = settings['grid_offset_x']
+            if 'grid_offset_y' in settings:
+                self.grid_offset_y = settings['grid_offset_y']
+            if 'grid_rotation' in settings:
+                self.grid_rotation = settings['grid_rotation']
+            if 'grid_rotation_center_x' in settings:
+                self.grid_rotation_center_x = settings['grid_rotation_center_x']
+            if 'grid_rotation_center_y' in settings:
+                self.grid_rotation_center_y = settings['grid_rotation_center_y']
+            if 'grid_interval' in settings:
+                self.grid_interval_var.set(settings['grid_interval'])
+            if 'grid_visible' in settings:
+                self.grid_visible = settings['grid_visible']
+            if 'base_offset_x' in settings:
+                self.base_offset_x = settings['base_offset_x']
+            if 'base_offset_y' in settings:
+                self.base_offset_y = settings['base_offset_y']
+            if 'size_preset' in settings:
+                self.size_combobox.set(settings['size_preset'])
+            if 'image_size' in settings:
+                width, height = settings['image_size']
+                self.image_size_var.set(f"{width}x{height}")
+                if settings['size_preset'] != "Original Size":
+                    self.original_image = self.original_image.resize((width, height), Image.BICUBIC)
+            
+            # Restore overlay settings (overlay would need to be loaded separately)
+            if 'overlay' in settings and self.overlay_image:
+                overlay_settings = settings['overlay']
+                self.overlay_scale = overlay_settings.get('scale', 1.0)
+                self.overlay_offset_x = overlay_settings.get('offset_x', 0)
+                self.overlay_offset_y = overlay_settings.get('offset_y', 0)
+                self.transparency_slider.set(overlay_settings.get('transparency', 255))
+            
+            # Update displays
+            self.update_grid_position_display()
+            self.update_zoom(self.slider.get())
+            
+            print(f"Settings loaded from {settings_file}")
+            return True
+            
+        except Exception as e:
+            print(f"Error loading settings: {e}")
+            return False
+        
     def update_status_menu(self):
         """Update the status menu items to reflect current mode states"""
         try:
@@ -205,6 +321,9 @@ class ImageZoomApp:
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Open Base Image...", command=self.open_new_image, accelerator="Ctrl+O")
         file_menu.add_command(label="Load Overlay Image...", command=self.load_overlay_image, accelerator="Ctrl+L")
+        file_menu.add_separator()
+        file_menu.add_command(label="Save Settings", command=lambda: self.save_settings(), accelerator="Ctrl+S")
+        file_menu.add_command(label="Load Settings", command=lambda: self.load_settings(self.current_image_path))
         file_menu.add_separator()
         file_menu.add_command(label="Remove Overlay", command=self.remove_overlay)
         file_menu.add_command(label="Reset Overlay Size/Position", command=self.reset_overlay)
@@ -607,6 +726,10 @@ class ImageZoomApp:
                 
             except Exception as e:
                 messagebox.showerror("Error", f"Could not open image:\n{str(e)}")
+        
+        #load image settings
+        self.current_image_path = image_path
+        self.load_settings(image_path)
 
     def toggle_grid_move_mode(self, event):
         """Toggle grid move mode (F8)"""
@@ -715,6 +838,19 @@ class ImageZoomApp:
             self.slider.set(new_zoom)
             self.update_zoom(new_zoom)
 
+    def zoom_in_keyboard_ctrl(self, event):
+        """Zoom in using Ctrl+Shift++ keyboard shortcut"""
+        current_zoom = self.slider.get()
+        new_zoom = min(current_zoom + 0.1, self.slider['to'])
+        self.slider.set(new_zoom)
+        self.update_zoom(new_zoom)
+
+    def zoom_out_keyboard_ctrl(self, event):
+        """Zoom out using Ctrl+Shift+- keyboard shortcut"""
+        current_zoom = self.slider.get()
+        new_zoom = max(current_zoom - 0.1, self.slider['from'])
+        self.slider.set(new_zoom)
+        self.update_zoom(new_zoom)
     def flip_horizontal(self, event):
         """Flip image horizontally (F1)"""
         self.original_image = self.original_image.transpose(Image.FLIP_LEFT_RIGHT)
