@@ -1,14 +1,15 @@
 # Image Zoomer
 
-A powerful Python image viewing and editing tool with advanced overlay capabilities, precision grid system, and comprehensive zoom controls.
+A powerful Python image viewing and editing tool with advanced overlay capabilities, precision grid system, comprehensive zoom controls, and precise rotation.
 
 ## Features
 
 ### 🖼️ **Image Viewing & Manipulation**
 - **Multi-format support**: PNG, JPEG, GIF, BMP, TIFF, WebP
 - **Zoom controls**: Mouse wheel, keyboard, slider (0.5x to 3x)
-- **Transform operations**: Flip horizontal/vertical, rotate 90°
+- **Transform operations**: Flip horizontal/vertical, rotate 90°, precision 1° rotation
 - **Custom sizing**: Resize images or use presets (7x7 inches @ 72 DPI)
+- **Custom icon**: Distinctive icon for system integration
 
 ### 🎯 **Overlay System**
 - **Load overlay images** with transparency control
@@ -30,6 +31,11 @@ A powerful Python image viewing and editing tool with advanced overlay capabilit
 - **Overlay Edit Mode**: Move and resize overlays
 - **Base Move Mode**: Reposition base image
 
+### 🖥️ **System Integration**
+- **Context menu integration**: Right-click any image → "Open with Image Zoomer"
+- **Custom application icon**: Appears in file managers and taskbars
+- **Command line support**: Launch directly with image files
+
 ## Installation
 
 ### Requirements
@@ -41,13 +47,35 @@ pip install tkinter pillow
 ```bash
 git clone https://github.com/yourusername/image-zoomer.git
 cd image-zoomer
-python image_zoomer_06.py
+python image_zoomer_08.py
+```
+
+### Ubuntu Integration Setup
+```bash
+# Make script executable
+chmod +x image_zoomer_08.py
+
+# Create desktop entry (replace paths with your actual paths)
+cat > ~/.local/share/applications/image-zoomer.desktop << EOF
+[Desktop Entry]
+Name=Image Zoomer
+Comment=Image viewer with zoom and grid overlay
+Exec=python3 /path/to/image_zoomer_08.py %f
+Icon=/path/to/image_zoomer_icon.png
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;Viewer;
+MimeType=image/png;image/jpeg;image/jpg;image/gif;image/bmp;image/tiff;image/webp;
+EOF
+
+# Update desktop database
+update-desktop-database ~/.local/share/applications/
 ```
 
 ## Quick Start
 
-1. **Launch** the application
-2. **Select an image** from the file dialog
+1. **Launch** the application or right-click an image and select "Image Zoomer"
+2. **Select an image** from the file dialog (if launched standalone)
 3. **Use mouse wheel** to zoom in/out
 4. **Press F7** to toggle grid visibility
 5. **Load an overlay** (Ctrl+L) for image comparison
@@ -61,6 +89,7 @@ python image_zoomer_06.py
 | **File Operations** |
 | `Ctrl+O` | Open base image |
 | `Ctrl+L` | Load overlay image |
+| `Ctrl+S` | Save settings |
 | `Esc` | Exit application |
 | **Zoom & View** |
 | `Left/Right Arrows` | Zoom out/in (when grid move OFF) |
@@ -71,6 +100,8 @@ python image_zoomer_06.py
 | `F2` | Flip vertical |
 | `F3` | Rotate clockwise 90° |
 | `F4` | Rotate counter-clockwise 90° |
+| `Ctrl+Right` | Rotate clockwise 1° |
+| `Ctrl+Left` | Rotate counter-clockwise 1° |
 | **Grid Controls** |
 | `F7` | Toggle grid visibility |
 | `F8` | Toggle grid move mode |
@@ -99,13 +130,13 @@ python image_zoomer_06.py
 ### 📋 **Menu System**
 
 #### **File**
-- Open/Load images, Remove overlay, Reset positions, Exit
+- Open/Load images, Remove overlay, Reset positions, Save/Load settings, Exit
 
 #### **View** 
 - Fit to window, Reset image, Grid controls
 
 #### **Transform**
-- Flip operations, Rotation controls
+- Flip operations, 90° rotation controls, 1° precision rotation
 
 #### **Mode**
 - Toggle between different interaction modes
@@ -121,10 +152,19 @@ python image_zoomer_06.py
 ### Basic Image Viewing
 ```python
 # Load and view an image
-python image_zoomer_06.py
-# Select your image file
+python image_zoomer_08.py
+# Or right-click image → "Open with Image Zoomer"
 # Use mouse wheel to zoom
 # Press F6 to fit to window
+```
+
+### Precision Rotation
+```python
+# For precise alignment:
+# 1. Use Ctrl+Left/Right for 1° adjustments
+# 2. Use F3/F4 for 90° rotations
+# 3. Image rotates around center point
+# 4. Press F5 to reset to original
 ```
 
 ### Overlay Comparison
@@ -145,6 +185,16 @@ python image_zoomer_06.py
 # 4. Use Shift+Up/Down to rotate grid
 # 5. Click anywhere to set rotation center
 # 6. Press F9 to reset grid
+```
+
+### Settings Persistence
+```python
+# Settings auto-save per image:
+# - Grid position and rotation
+# - Zoom level and image size
+# - Overlay settings
+# - Base image position
+# Press Ctrl+S to manually save
 ```
 
 ## Status Indicators
@@ -170,6 +220,24 @@ The status bar shows:
 - Efficient image scaling with PIL/Pillow
 - Real-time grid rendering
 - Smooth zoom and pan operations
+- Precision rotation with center-point pivot
+
+### Settings Storage
+- Auto-saves settings per image as `.settings.json` files
+- Persistent zoom, grid position, overlay state
+- Manual save with Ctrl+S
+
+## Icon & Integration
+
+The application includes a custom SVG icon featuring:
+- Image frame with grid overlay
+- Magnifying glass for zoom functionality
+- Clean design that scales well at different sizes
+
+Icon formats provided:
+- SVG (vector, scales to any size)
+- PNG (16x16, 32x32, 48x48)
+- ICO (Windows compatibility)
 
 ## Contributing
 
@@ -185,13 +253,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
-### v0.6 (Latest)
-- ✅ Replaced problematic corner drag with keyboard resize
-- ✅ Added proportional overlay scaling with zoom
-- ✅ Comprehensive menu system
-- ✅ Enhanced file format support
-- ✅ Fixed base position reset functionality
-- ✅ Improved status indicators
+### v0.8 (Latest)
+- ✅ Added 1° precision rotation (Ctrl+Left/Right)
+- ✅ Custom application icon with system integration
+- ✅ Ubuntu context menu support ("Open with")
+- ✅ Settings persistence per image
+- ✅ Command line argument support
+- ✅ Improved rotation around center point
+
+### v0.7
+- Enhanced overlay system
+- Settings save/load functionality
+- Base image positioning
+
+### v0.6
+- Replaced problematic corner drag with keyboard resize
+- Added proportional overlay scaling with zoom
+- Comprehensive menu system
+- Enhanced file format support
 
 ### v0.5
 - Grid rotation system
@@ -212,4 +291,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Made with ❤️ for image analysis and comparison workflows**
+**Made for precision image analysis and comparison workflows**
